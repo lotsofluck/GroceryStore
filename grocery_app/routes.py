@@ -14,6 +14,45 @@ main = Blueprint("main", __name__)
 #           Routes                       #
 ##########################################
 
+
+auth = Blueprint("auth", __name__)
+
+@auth.route('/signup', methods=['GET', 'POST'])
+def signup():
+    print('in signup')
+    form = SignUpForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(
+            username=form.username.data,
+            password=hashed_password
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash('Account Created.')
+        print('created')
+        return redirect(url_for('auth.login'))
+    print(form.errors)
+    return render_template('signup.html', form=form)
+
+
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=True)
+            next_page = request.args.get('next')
+            return redirect(next_page if next_page else url_for('main.homepage'))
+    return render_template('login.html', form=form)
+
+@auth.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.homepage'))
+    
 @main.route('/')
 def homepage():
     all_stores = GroceryStore.query.all()
@@ -21,6 +60,7 @@ def homepage():
     return render_template('home.html', all_stores=all_stores)
 
 @main.route('/new_store', methods=['GET', 'POST'])
+@login_required
 def new_store():
     #Creates a GroceryStoreForm
     form= GroceryStoreForm()
@@ -39,6 +79,7 @@ def new_store():
     return render_template('new_store.html')
 
 @main.route('/new_item', methods=['GET', 'POST'])
+@login_required
 def new_item():
     #Creates a Newitem form
     form = GroceryItemForm()
@@ -82,6 +123,7 @@ def store_detail(store_id):
     return render_template('store_detail.html', store=store, form=form)
 
 @main.route('/item/<item_id>', methods=['GET', 'POST'])
+@login_required
 def item_detail(item_id):
     item = GroceryItem.query.get(item_id)
     form = GroceryItemForm(obj=item)
@@ -104,42 +146,9 @@ def item_detail(item_id):
     item = GroceryItem.query.get(item_id)
     return render_template('item_detail.html', item=item)
 
-# routes.py
-
-auth = Blueprint("auth", __name__)
-
-@auth.route('/signup', methods=['GET', 'POST'])
-def signup():
-    print('in signup')
-    form = SignUpForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(
-            username=form.username.data,
-            password=hashed_password
-        )
-        db.session.add(user)
-        db.session.commit()
-        flash('Account Created.')
-        print('created')
-        return redirect(url_for('auth.login'))
-    print(form.errors)
-    return render_template('signup.html', form=form)
-
-
-@auth.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=True)
-            next_page = request.args.get('next')
-            return redirect(next_page if next_page else url_for('main.homepage'))
-    return render_template('login.html', form=form)
-
-@auth.route('/logout')
+@main.route("/shopping_list")
 @login_required
-def logout():
-    logout_user()
-    return redirect(url_for('main.homepage'))
+def shopping_list():
+    """ Simple route to show the user their shopping list """
+    return render_template("shopping_list.html", items=current_user.shopping_list_items)
+
