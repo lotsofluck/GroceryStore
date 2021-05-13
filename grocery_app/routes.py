@@ -74,9 +74,9 @@ def new_store():
         db.session.commit()
 
         flash('New GroceryStore was created successfully!')
-        return redirect(url_for('main_store_detail'))
+        return redirect(url_for('main.store_detail'))
     
-    return render_template('new_store.html')
+    return render_template('new_store.html', form=form)
 
 @main.route('/new_item', methods=['GET', 'POST'])
 @login_required
@@ -98,7 +98,7 @@ def new_item():
         flash('New GroceryItem was created successfully')
         return redirect(url_for('main_item_detail'))
     
-    return render_template('new_item.html')
+    return render_template('new_item.html', form=form)
 
 @main.route('/store/<store_id>', methods=['GET', 'POST'])
 def store_detail(store_id):
