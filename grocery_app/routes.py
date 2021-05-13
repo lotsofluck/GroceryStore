@@ -3,7 +3,7 @@ from flask import Blueprint, request, render_template, redirect, url_for, flash
 from datetime import date, datetime
 from grocery_app.models import GroceryStore, GroceryItem, User
 from grocery_app import bcrypt
-from flask_login import login_user, logout_user, login_required, current_user 
+from flask_login import login_user, logout_user, login_required, current_user, UserMixin 
 
 # Import app and db from events_app package so that we can run app
 from grocery_app import app, db

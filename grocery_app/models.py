@@ -40,7 +40,7 @@ class GroceryItem(db.Model):
         "User", secondary="shopping_list_table", back_populates="shopping_list_items"
     )
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     """User Model"""
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False)

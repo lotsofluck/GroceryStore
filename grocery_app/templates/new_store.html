@@ -1,32 +1,17 @@
-
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Sign Up</h1>
+<h1>New Store</h1>
 
-<form action="/signup" method="POST">
+<form method="POST" action="{{ url_for('main.new_store') }}">
     {{ form.csrf_token }}
     <fieldset>
-        <legend>Enter your credentials</legend>
+        <legend>Please enter your information:</legend>
 
-        {{ form.username.label }}
-        {{ form.username }}
-        <ul>
-        {% for error in form.username.errors %}
-            <li class="error">{{ error }}</li>
-        {% endfor %}
-        </ul>
+        {% include 'store.html' %}
 
-        {{ form.password.label }}
-        {{ form.password }}
-        <ul>
-        {% for error in form.password.errors %}
-            <li class="error">{{ error }}</li>
-        {% endfor %}
-        </ul>
-
-        {{ form.submit }}
     </fieldset>
 </form>
+
 
 {% endblock %}
